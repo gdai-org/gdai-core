@@ -5,6 +5,7 @@ neutral value, and the caller cannot tell "no data" from "the call failed".
 Several tests below exist only to pin that errors propagate.
 """
 
+import httpx
 import pytest
 from fakes import FakeTransport, ok
 
@@ -18,7 +19,7 @@ from gdai_core.errors import (
     UnexpectedTransportError,
 )
 from gdai_core.policy import RequestPolicy
-from gdai_core.transport import RawResponse
+from gdai_core.transport import HttpxTransport, RawResponse
 
 
 def client(transport, **kw):
@@ -153,3 +154,25 @@ async def test_empty_body_is_not_a_contract_error():
     r = await c.delete("/x")
     assert r.status == 204
     assert r.body is None
+
+
+def _httpx_client_raising(exc: Exception):
+    def handler(request):
+        raise exc
+
+    return client(
+        HttpxTransport(httpx.AsyncClient(transport=httpx.MockTransport(handler)))
+    )
+
+
+async def test_httpx_connect_error_is_service_unavailable():
+    c = _httpx_client_raising(httpx.ConnectError("connection refused"))
+    with pytest.raises(ServiceUnavailable) as exc:
+        await c.get("/x")
+    assert isinstance(exc.value.__cause__.__cause__, httpx.ConnectError)
+
+
+async def test_httpx_timeout_is_service_timeout():
+    c = _httpx_client_raising(httpx.ConnectTimeout("too slow"))
+    with pytest.raises(ServiceTimeout):
+        await c.get("/x")

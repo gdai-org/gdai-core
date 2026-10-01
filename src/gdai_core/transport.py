@@ -74,6 +74,12 @@ class HttpxTransport:
                 params=dict(request.params) if request.params else None,
                 timeout=request.timeout,
             )
+        # As exceções do httpx não herdam de OSError/TimeoutError; traduzidas
+        # aqui, o cliente as classifica sem conhecer o transporte.
+        except httpx.TimeoutException as exc:
+            raise TimeoutError(str(exc)) from exc
+        except httpx.ConnectError as exc:
+            raise ConnectionError(str(exc)) from exc
         finally:
             if self._owned:
                 await client.aclose()
