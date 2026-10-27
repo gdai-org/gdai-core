@@ -19,16 +19,32 @@ from gdai_core.errors import (
     UnexpectedTransportError,
 )
 from gdai_core.health import HealthCheck, HealthProbe, ProbeResult
+from gdai_core.holidays import (
+    BrazilianState,
+    Holiday,
+    HolidayKind,
+    HolidayScope,
+    InvalidHolidayRange,
+    UnknownBrazilianState,
+    brazilian_holidays,
+    brazilian_holidays_between,
+    easter_sunday,
+)
 from gdai_core.policy import RequestPolicy
 from gdai_core.response import Response
 from gdai_core.settings import ServiceSettings
 from gdai_core.transport import HttpxTransport, RawResponse, Request, Transport
 
 __all__ = [
+    "BrazilianState",
     "ErrorEnvelope",
     "HealthCheck",
     "HealthProbe",
+    "Holiday",
+    "HolidayKind",
+    "HolidayScope",
     "HttpxTransport",
+    "InvalidHolidayRange",
     "ProbeResult",
     "RawResponse",
     "Request",
@@ -44,4 +60,8 @@ __all__ = [
     "TokenProvider",
     "Transport",
     "UnexpectedTransportError",
+    "UnknownBrazilianState",
+    "brazilian_holidays",
+    "brazilian_holidays_between",
+    "easter_sunday",
 ]
